@@ -1007,7 +1007,6 @@ class Config {
   }
 
   resetProjectSettings (newSettings, options = {}) {
-    console.log("noo", newSettings)
     // Sets the scope and source of all project settings to `path`.
     this.hasCurrentProject = !options.removeProject
     const pathScopedSettings = {}
