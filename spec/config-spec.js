@@ -1836,7 +1836,7 @@ describe('Config', () => {
     })
   })
 
-  describe('project/path specific configs', () => {
+  describe('project specific configs', () => {
     describe('config.resetProjectSettings', () => {
       it('gracefully handles invalid config objects', () => {
         atom.config.resetProjectSettings({})
