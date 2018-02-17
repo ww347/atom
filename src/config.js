@@ -619,9 +619,33 @@ class Config {
   // Returns an {Array} of {Object}s with the following keys:
   //  * `scopeDescriptor` The {ScopeDescriptor} with which the value is associated
   //  * `value` The value for the key-path
-  getAll (keyPath, options) {
+  getAll (keyPath, options = {}) {
     let globalValue, result, scope
     if (options != null) { ({scope} = options) }
+
+    const priorities = []
+
+    // Project settings have priority over global settings.
+    if (this.hasCurrentProject) {
+      options.scope = (scope == null) ? [PROJECT_SOURCE] : scope.push(PROJECT_SOURCE)
+      options.sources = (options.sources == null ? [PROJECT_SOURCE] : options.sources.push(PROJECT_SOURCE))
+      priorities.push({ options, source: PROJECT_SOURCE })
+    }
+    priorities.push({options, scope})
+
+    for (let priority of priorities) {
+      result = this.getAllForPriority(keyPath, priority)
+      if (result.length > 0) {
+        return result
+      }
+    }
+  }
+
+  // Gets all values for a particular priority. IE: Project settings,
+  // then global settings.
+  getAllForPriority (keyPath, priority) {
+    let globalValue, result, scope
+    if (priority.options != null) { ({scope} = priority.options) }
 
     if (scope != null) {
       let legacyScopeDescriptor
@@ -629,27 +653,38 @@ class Config {
       result = this.scopedSettingsStore.getAll(
           scopeDescriptor.getScopeChain(),
           keyPath,
-          options
+          priority.options
         )
       legacyScopeDescriptor = this.getLegacyScopeDescriptor(scopeDescriptor)
       if (legacyScopeDescriptor) {
         result.push(...Array.from(this.scopedSettingsStore.getAll(
             legacyScopeDescriptor.getScopeChain(),
             keyPath,
-            options
+            priority.options
           ) || []))
       }
     } else {
       result = []
     }
 
-    globalValue = this.getRawValue(keyPath, options)
+    if (priority.source == null) {
+      globalValue = this.getRawValue(keyPath, priority.options)
+    } else {
+      result = result.map((obj) => {
+        if (obj.scopeSelector === priority.source) {
+          obj.scopeSelector = "*"
+        }
+        return obj
+      })
+    }
+
     if (globalValue) {
       result.push({scopeSelector: '*', value: globalValue})
     }
 
     return result
   }
+
 
   // Essential: Sets the value for a configuration setting.
   //
@@ -972,6 +1007,7 @@ class Config {
   }
 
   resetProjectSettings (newSettings, options = {}) {
+    console.log("noo", newSettings)
     // Sets the scope and source of all project settings to `path`.
     this.hasCurrentProject = !options.removeProject
     const pathScopedSettings = {}

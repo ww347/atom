@@ -223,9 +223,12 @@ class AtomEnvironment {
       projectHomeSchema: ConfigSchema.projectHome
     })
     this.config.resetUserSettings(userSettings)
+
+    console.log("wee!", projectSettings)
     if (projectSettings != null) {
       this.config.resetProjectSettings(projectSettings)
     }
+
     this.menu.initialize({resourcePath})
     this.contextMenu.initialize({resourcePath, devMode})
 

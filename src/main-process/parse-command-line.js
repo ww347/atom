@@ -142,11 +142,11 @@ module.exports = function parseCommandLine (processArgs) {
     devMode = true
   }
 
-  let projectConfig
+  let projectSettings
   if (atomProject) {
-    const config = readProjectConfigSync(atomProject, executedFrom)
+    const config = readProjectSettingsSync(atomProject, executedFrom)
     const paths = config.paths
-    projectConfig = config.config
+    projectSettings = config.config
     if (paths != null) {
       pathsToOpen = pathsToOpen.concat(paths)
     }
@@ -169,7 +169,7 @@ module.exports = function parseCommandLine (processArgs) {
   resourcePath = normalizeDriveLetterName(resourcePath)
   devResourcePath = normalizeDriveLetterName(devResourcePath)
   return {
-    projectConfig,
+    projectSettings,
     resourcePath,
     devResourcePath,
     pathsToOpen,
@@ -195,7 +195,7 @@ module.exports = function parseCommandLine (processArgs) {
   }
 }
 
-const readProjectConfigSync = (filepath, executedFrom) => {
+const readProjectSettingsSync = (filepath, executedFrom) => {
   if (!hasAtomProjectFormat(path.basename(filepath))) {
     throw new Error("File must match format: *.atom-project.{json, cson}")
   }

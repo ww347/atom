@@ -1850,7 +1850,7 @@ describe('Config', () => {
     })
 
     describe('config.get', () => {
-      fdescribe('project configs', () => {
+      describe('project configs', () => {
         it('returns a deep clone of the property value', () => {
           atom.config.resetProjectSettings({'value': {array: [1, {b: 2}, 3]}})
           const retrievedValue = atom.config.get('value')
@@ -1902,12 +1902,11 @@ describe('Config', () => {
 
     describe('config.getAll', () => {
       it('should get settings in the same way .get would return them', () => {
-        atom.config.setOn(atom.config.globalSettings, 'a', 'b')
         atom.config.resetProjectSettings({'a': 'b'})
-        atom.config.setOn(atom.config.projectSettings, 'a', 'f')
+        atom.config.set('a', 'f')
         expect(atom.config.getAll('a')).toEqual([{
           scopeSelector: '*',
-          value: 'f'
+          value: 'b'
         }])
       })
     })
