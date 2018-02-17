@@ -1,12 +1,17 @@
 const {app} = require('electron')
 const nslog = require('nslog')
 const path = require('path')
+const fs = require('fs-plus')
+
 const temp = require('temp').track()
 const parseCommandLine = require('./parse-command-line')
 const startCrashReporter = require('../crash-reporter-start')
 const atomPaths = require('../atom-paths')
 
 module.exports = function start (resourcePath, startTime) {
+
+  // fs.writeFileSync("/Users/philipfweiss/Desktop/goo.goo", "cheek" + JSON.stringify(process.cwd()), 'utf8')
+
   global.shellStartTime = startTime
 
   process.on('uncaughtException', function (error = {}) {

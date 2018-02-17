@@ -546,6 +546,13 @@ describe('AtomApplication', function () {
       })
     })
 
+    describe('when opened via --atom-project', () => {
+      it('does nothing if it cannot find a *.atom-project.json file')
+      it('can read and parse atom project config file')
+      it('launches paths specified by paths field')
+      it('attaches project configs to loadSettingsJSON, passing it over process boundary')
+    })
+
     describe('when opening atom:// URLs', () => {
       it('loads the urlMain file in a new window', async () => {
         const packagePath = path.join(__dirname, '..', 'fixtures', 'packages', 'package-with-url-main')

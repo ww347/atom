@@ -360,6 +360,7 @@ const ScopeDescriptor = require('./scope-descriptor')
 // * Don't depend on (or write to) configuration keys outside of your keypath.
 //
 const schemaEnforcers = {}
+const PROJECT_SOURCE = '__project'
 
 class Config {
   static addSchemaEnforcer (typeName, enforcerFunction) {
@@ -422,6 +423,8 @@ class Config {
       type: 'object',
       properties: {}
     }
+
+    this.hasCurrentProject = false
     this.defaultSettings = {}
     this.settings = {}
     this.scopedSettingsStore = new ScopedPropertyStore()
@@ -579,7 +582,7 @@ class Config {
   // Returns the value from Atom's default settings, the user's configuration
   // file in the type specified by the configuration schema.
   get (...args) {
-    let keyPath, options, scope
+    let keyPath, options = {}, scope, value
     if (args.length > 1) {
       if ((typeof args[0] === 'string') || (args[0] == null)) {
         [keyPath, options] = args;
@@ -589,8 +592,18 @@ class Config {
       [keyPath] = args
     }
 
+    const noSources = options.sources == null || (Array.isArray(options.sources) && options.sources.length == 0)
+    if (this.hasCurrentProject && noSources) {
+      const projectScope = Array.isArray(scope) ? scope.push(PROJECT_SOURCE) : [PROJECT_SOURCE]
+      const projectOptions = Object.assign({sources: [PROJECT_SOURCE]}, options)
+      value = this.getRawScopedValue(projectScope, keyPath, projectOptions)
+      if (value != null) {
+        return value
+      }
+    }
+
     if (scope != null) {
-      const value = this.getRawScopedValue(scope, keyPath, options)
+      value = this.getRawScopedValue(scope, keyPath, options)
       return value != null ? value : this.getRawValue(keyPath, options)
     } else {
       return this.getRawValue(keyPath, options)
@@ -958,6 +971,18 @@ class Config {
     })
   }
 
+  resetProjectSettings (newSettings, options = {}) {
+    // Sets the scope and source of all project settings to `path`.
+    this.hasCurrentProject = !options.removeProject
+    const pathScopedSettings = {}
+    pathScopedSettings[PROJECT_SOURCE] = newSettings
+    this.resetUserScopedSettings(pathScopedSettings, {source: PROJECT_SOURCE})
+  }
+
+  removeProjectSettings () {
+    this.resetProjectSettings({}, {removeProject: true})
+  }
+
   getRawValue (keyPath, options = {}) {
     let value
     if (!options.excludeSources || !options.excludeSources.includes(this.mainSource)) {
@@ -1165,8 +1190,8 @@ class Config {
     if (this.transactDepth <= 0) { return this.emitter.emit('did-change') }
   }
 
-  resetUserScopedSettings (newScopedSettings) {
-    const source = this.mainSource
+  resetUserScopedSettings (newScopedSettings, options = {}) {
+    const source = options.source == null ? this.mainSource : options.source
     const priority = this.priorityForSource(source)
     this.scopedSettingsStore.removePropertiesForSource(source)
 

@@ -5,6 +5,8 @@ const yargs = require('yargs')
 const {app} = require('electron')
 const path = require('path')
 const fs = require('fs-plus')
+const CSON = require('season')
+const ConfigFile = require('../config-file.js')
 
 module.exports = function parseCommandLine (processArgs) {
   const options = yargs(processArgs).wrap(yargs.terminalWidth())
@@ -52,6 +54,8 @@ module.exports = function parseCommandLine (processArgs) {
     'When in test mode, waits until the specified time (in minutes) and kills the process (exit code: 130).'
   )
   options.alias('v', 'version').boolean('v').describe('v', 'Print the version information.')
+  options.alias('p', 'atom-project').describe('p', 'Start atom with an atom-project file.')
+
   options.alias('w', 'wait').boolean('w').describe('w', 'Wait for window to be closed before returning.')
   options.alias('a', 'add').boolean('a').describe('add', 'Open path as a new project in last used window.')
   options.string('socket-path')
@@ -91,6 +95,8 @@ module.exports = function parseCommandLine (processArgs) {
   const benchmark = args['benchmark']
   const benchmarkTest = args['benchmark-test']
   const test = args['test']
+  const atomProject = args['atom-project']
+
   const mainProcess = args['main-process']
   const timeout = args['timeout']
   const newWindow = args['new-window']
@@ -125,6 +131,8 @@ module.exports = function parseCommandLine (processArgs) {
     }
   }
 
+  // Check to see if atom-project flag is set, then add all paths from the .atom-project.
+
   if (args['resource-path']) {
     devMode = true
     devResourcePath = args['resource-path']
@@ -132,6 +140,16 @@ module.exports = function parseCommandLine (processArgs) {
 
   if (test) {
     devMode = true
+  }
+
+  let projectConfig
+  if (atomProject) {
+    const config = readProjectConfigSync(atomProject, executedFrom)
+    const paths = config.paths
+    projectConfig = config.config
+    if (paths != null) {
+      pathsToOpen = pathsToOpen.concat(paths)
+    }
   }
 
   if (devMode) {
@@ -150,8 +168,8 @@ module.exports = function parseCommandLine (processArgs) {
 
   resourcePath = normalizeDriveLetterName(resourcePath)
   devResourcePath = normalizeDriveLetterName(devResourcePath)
-
   return {
+    projectConfig,
     resourcePath,
     devResourcePath,
     pathsToOpen,
@@ -177,7 +195,23 @@ module.exports = function parseCommandLine (processArgs) {
   }
 }
 
-function normalizeDriveLetterName (filePath) {
+const readProjectConfigSync = (filepath, executedFrom) => {
+  if (!hasAtomProjectFormat(path.basename(filepath))) {
+    throw new Error("File must match format: *.atom-project.{json, cson}")
+  }
+  try {
+    return CSON.readFileSync(path.join(executedFrom, filepath))
+  } catch(e) {
+    throw new Error("Unable to read supplied config file.")
+  }
+}
+
+const hasAtomProjectFormat = (atomProject) => {
+  const projectFileFormat = new RegExp('.*\.atom-project\.(json|cson)')
+  return projectFileFormat.test(atomProject)
+}
+
+const normalizeDriveLetterName = (filePath) => {
   if (process.platform === 'win32') {
     return filePath.replace(/^([a-z]):/, ([driveLetter]) => driveLetter.toUpperCase() + ':')
   } else {

@@ -15,6 +15,7 @@ const path = require('path')
 const os = require('os')
 const net = require('net')
 const url = require('url')
+const CSON = require('season')
 const {EventEmitter} = require('events')
 const _ = require('underscore-plus')
 let FindParentDir = null
@@ -93,7 +94,6 @@ class AtomApplication extends EventEmitter {
     this.quitting = false
     this.getAllWindows = this.getAllWindows.bind(this)
     this.getLastFocusedWindow = this.getLastFocusedWindow.bind(this)
-
     this.resourcePath = options.resourcePath
     this.devResourcePath = options.devResourcePath
     this.version = options.version
@@ -101,6 +101,7 @@ class AtomApplication extends EventEmitter {
     this.safeMode = options.safeMode
     this.socketPath = options.socketPath
     this.logFile = options.logFile
+    this.projectConfig = options.projectConfig
     this.userDataDir = options.userDataDir
     this._killProcess = options.killProcess || process.kill.bind(process)
     if (options.test || options.benchmark || options.benchmarkTest) this.socketPath = null
@@ -202,6 +203,7 @@ class AtomApplication extends EventEmitter {
 
   openWithOptions (options) {
     const {
+      projectConfig,
       initialPaths,
       pathsToOpen,
       executedFrom,

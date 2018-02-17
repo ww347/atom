@@ -1,6 +1,7 @@
-const path = require('path')
-const temp = require('temp').track()
+const dedent = require('dedent')
 const fs = require('fs-plus')
+const path = require('path')
+const os = require('os')
 
 describe('Config', () => {
   let savedSettings
@@ -490,7 +491,6 @@ describe('Config', () => {
         atom.config.set('foo.bar.baz', 'value 2')
         expect(observeHandler).toHaveBeenCalledWith({newValue: 'value 2', oldValue: 'value 1'})
         observeHandler.reset()
-
         observeHandler.andCallFake(() => { throw new Error('oops') })
         expect(() => atom.config.set('foo.bar.baz', 'value 1')).toThrow('oops')
         expect(observeHandler).toHaveBeenCalledWith({newValue: 'value 1', oldValue: 'value 2'})
@@ -1840,4 +1840,82 @@ describe('Config', () => {
       expect(atom.config.get('do.ray')).toBe('me')
     })
   })
+
+  describe('project/path specific configs', () => {
+    describe('config.resetProjectSettings', () => {
+      it('gracefully handles invalid config objects', () => {
+        atom.config.resetProjectSettings({})
+        expect(atom.config.get('foo.bar')).toBeUndefined()
+      })
+    })
+
+    describe('config.get', () => {
+      fdescribe('project configs', () => {
+        it('returns a deep clone of the property value', () => {
+          atom.config.resetProjectSettings({'value': {array: [1, {b: 2}, 3]}})
+          const retrievedValue = atom.config.get('value')
+          retrievedValue.array[0] = 4
+          retrievedValue.array[1].b = 2.1
+          expect(atom.config.get('value')).toEqual({array: [1, {b: 2}, 3]})
+        })
+
+        it('should properly get project configs', () => {
+          atom.config.resetProjectSettings({'foo': 'wei'})
+          expect(atom.config.get('foo')).toBe('wei')
+          atom.config.resetProjectSettings({'foo': {'bar': 'baz'}})
+          expect(atom.config.get('foo.bar')).toBe('baz')
+        })
+
+        it('should get project settings with higher priority than regular settings', () => {
+          atom.config.set('foo', 'bar')
+          atom.config.resetProjectSettings({'foo': 'baz'})
+          expect(atom.config.get('foo')).toBe('baz')
+        })
+
+        it('correctly gets nested and scoped properties for project configs', () => {
+          expect(atom.config.set('foo.bar.str', 'global')).toBe(true)
+          expect(atom.config.set('foo.bar.str', 'scoped', {scopeSelector: '.source.js'})).toBe(true)
+          expect(atom.config.get('foo.bar.str')).toBe('global')
+          expect(atom.config.get('foo.bar.str', {scope: ['.source.js']})).toBe('scoped')
+        })
+
+        it('returns a deep clone of the property value', () => {
+          atom.config.set('value', {array: [1, {b: 2}, 3]})
+          const retrievedValue = atom.config.get('value')
+          retrievedValue.array[0] = 4
+          retrievedValue.array[1].b = 2.1
+          expect(atom.config.get('value')).toEqual({array: [1, {b: 2}, 3]})
+        })
+
+        it('clears project settings correctly', () => {
+          atom.config.set("foo", "bar")
+          expect(atom.config.get("foo")).toBe("bar")
+          atom.config.resetProjectSettings({"foo": "baz"})
+          expect(atom.config.get("foo")).toBe("baz")
+          expect(atom.config.getSources().length).toBe(1)
+          atom.config.removeProjectSettings()
+          expect(atom.config.get("foo")).toBe("bar")
+          expect(atom.config.getSources().length).toBe(0)
+        })
+      })
+    })
+
+    describe('config.getAll', () => {
+      it('should get settings in the same way .get would return them', () => {
+        atom.config.setOn(atom.config.globalSettings, 'a', 'b')
+        atom.config.resetProjectSettings({'a': 'b'})
+        atom.config.setOn(atom.config.projectSettings, 'a', 'f')
+        expect(atom.config.getAll('a')).toEqual([{
+          scopeSelector: '*',
+          value: 'f'
+        }])
+      })
+    })
+  })
 })
+
+function writeFileSync (filePath, content, seconds = 2) {
+  const utime = (Date.now() / 1000) + seconds
+  fs.writeFileSync(filePath, content)
+  fs.utimesSync(filePath, utime, utime)
+}
