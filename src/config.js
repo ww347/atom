@@ -625,13 +625,15 @@ class Config {
 
     const priorities = []
 
-    // Project settings have priority over global settings.
+    // Priority level for atom project settings.
     if (this.hasCurrentProject) {
       options.scope = (scope == null) ? [PROJECT] : scope.push(PROJECT)
       options.sources = (options.sources == null ? [PROJECT] : options.sources.push(PROJECT))
       priorities.push({ options, source: PROJECT })
     }
-    priorities.push({options, scope})
+
+    // Priority level for atom global settings.
+    priorities.push({options})
 
     for (let priority of priorities) {
       result = this.getAllForPriority(keyPath, priority)
