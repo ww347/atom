@@ -15,7 +15,6 @@ const path = require('path')
 const os = require('os')
 const net = require('net')
 const url = require('url')
-const CSON = require('season')
 const {EventEmitter} = require('events')
 const _ = require('underscore-plus')
 let FindParentDir = null

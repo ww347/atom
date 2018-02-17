@@ -1,8 +1,3 @@
-const dedent = require('dedent')
-const fs = require('fs-plus')
-const path = require('path')
-const os = require('os')
-
 describe('Config', () => {
   let savedSettings
 
@@ -1888,13 +1883,13 @@ describe('Config', () => {
         })
 
         it('clears project settings correctly', () => {
-          atom.config.set("foo", "bar")
-          expect(atom.config.get("foo")).toBe("bar")
-          atom.config.resetProjectSettings({"foo": "baz"})
-          expect(atom.config.get("foo")).toBe("baz")
+          atom.config.set('foo', 'bar')
+          expect(atom.config.get('foo')).toBe('bar')
+          atom.config.resetProjectSettings({'foo': 'baz'})
+          expect(atom.config.get('foo')).toBe('baz')
           expect(atom.config.getSources().length).toBe(1)
           atom.config.removeProjectSettings()
-          expect(atom.config.get("foo")).toBe("bar")
+          expect(atom.config.get('foo')).toBe('bar')
           expect(atom.config.getSources().length).toBe(0)
         })
       })

@@ -196,15 +196,14 @@ module.exports = function parseCommandLine (processArgs) {
 }
 
 const readProjectSettingsSync = (filepath, executedFrom) => {
-
   if (!hasAtomProjectFormat(path.basename(filepath))) {
-    throw new Error("File must match format: *.atom-project.{json, cson}")
+    throw new Error('File must match format: *.atom-project.{json, cson}')
   }
   try {
     const readPath = path.isAbsolute(filepath) ? filepath : path.join(executedFrom, filepath)
     return CSON.readFileSync(path.join(executedFrom, filepath))
-  } catch(e) {
-    throw new Error("Unable to read supplied config file.")
+  } catch (e) {
+    throw new Error('Unable to read supplied config file.')
   }
 }
 

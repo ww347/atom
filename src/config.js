@@ -672,7 +672,7 @@ class Config {
     } else {
       result = result.map((obj) => {
         if (obj.scopeSelector === priority.source) {
-          obj.scopeSelector = "*"
+          obj.scopeSelector = '*'
         }
         return obj
       })
@@ -684,7 +684,6 @@ class Config {
 
     return result
   }
-
 
   // Essential: Sets the value for a configuration setting.
   //

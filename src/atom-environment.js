@@ -50,7 +50,6 @@ let nextId = 0
 //
 // An instance of this class is always available as the `atom` global.
 class AtomEnvironment {
-
   /*
   Section: Properties
   */
