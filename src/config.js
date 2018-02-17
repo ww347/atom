@@ -360,7 +360,7 @@ const ScopeDescriptor = require('./scope-descriptor')
 // * Don't depend on (or write to) configuration keys outside of your keypath.
 //
 const schemaEnforcers = {}
-const PROJECT_SOURCE = '__project'
+const PROJECT = '__project'
 
 class Config {
   static addSchemaEnforcer (typeName, enforcerFunction) {
@@ -594,8 +594,8 @@ class Config {
 
     const noSources = options.sources == null || (Array.isArray(options.sources) && options.sources.length == 0)
     if (this.hasCurrentProject && noSources) {
-      const projectScope = Array.isArray(scope) ? scope.push(PROJECT_SOURCE) : [PROJECT_SOURCE]
-      const projectOptions = Object.assign({sources: [PROJECT_SOURCE]}, options)
+      const projectScope = Array.isArray(scope) ? scope.push(PROJECT) : [PROJECT]
+      const projectOptions = Object.assign({sources: [PROJECT]}, options)
       value = this.getRawScopedValue(projectScope, keyPath, projectOptions)
       if (value != null) {
         return value
@@ -627,9 +627,9 @@ class Config {
 
     // Project settings have priority over global settings.
     if (this.hasCurrentProject) {
-      options.scope = (scope == null) ? [PROJECT_SOURCE] : scope.push(PROJECT_SOURCE)
-      options.sources = (options.sources == null ? [PROJECT_SOURCE] : options.sources.push(PROJECT_SOURCE))
-      priorities.push({ options, source: PROJECT_SOURCE })
+      options.scope = (scope == null) ? [PROJECT] : scope.push(PROJECT)
+      options.sources = (options.sources == null ? [PROJECT] : options.sources.push(PROJECT))
+      priorities.push({ options, source: PROJECT })
     }
     priorities.push({options, scope})
 
@@ -1009,8 +1009,8 @@ class Config {
     // Sets the scope and source of all project settings to `path`.
     this.hasCurrentProject = !options.removeProject
     const pathScopedSettings = {}
-    pathScopedSettings[PROJECT_SOURCE] = newSettings
-    this.resetUserScopedSettings(pathScopedSettings, {source: PROJECT_SOURCE})
+    pathScopedSettings[PROJECT] = newSettings
+    this.resetUserScopedSettings(pathScopedSettings, {source: PROJECT})
   }
 
   removeProjectSettings () {
