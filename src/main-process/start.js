@@ -8,7 +8,7 @@ const atomPaths = require('../atom-paths')
 
 module.exports = function start (resourcePath, startTime) {
   global.shellStartTime = startTime
-  
+
   process.on('uncaughtException', function (error = {}) {
     if (error.message != null) {
       console.log(error.message)
