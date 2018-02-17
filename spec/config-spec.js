@@ -1912,9 +1912,3 @@ describe('Config', () => {
     })
   })
 })
-
-function writeFileSync (filePath, content, seconds = 2) {
-  const utime = (Date.now() / 1000) + seconds
-  fs.writeFileSync(filePath, content)
-  fs.utimesSync(filePath, utime, utime)
-}
