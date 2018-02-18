@@ -1,6 +1,0 @@
-{
-  "paths": ["groo"],
-  "config": {
-    "foo": "bar"
-  }
-}
