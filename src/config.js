@@ -594,7 +594,7 @@ class Config {
       [keyPath] = args
     }
 
-    const noSources = !options.sources || (Array.isArray(options.sources) && options.sources.length == 0)
+    const noSources = !options.sources || (Array.isArray(options.sources) && options.sources.length === 0)
     if (this.hasCurrentProject && noSources) {
       const projectScope = Array.isArray(scope) ? scope.push(PROJECT) : [PROJECT]
       const projectOptions = Object.assign({sources: [PROJECT]}, options)
