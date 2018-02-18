@@ -198,7 +198,7 @@ const readProjectSettingsSync = (filepath, executedFrom) => {
   }
   try {
     const readPath = path.isAbsolute(filepath) ? filepath : path.join(executedFrom, filepath)
-    return CSON.readFileSync(path.join(executedFrom, readPath))
+    return CSON.readFileSync(readPath)
   } catch (e) {
     throw new Error('Unable to read supplied config file.')
   }
