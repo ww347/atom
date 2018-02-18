@@ -4,7 +4,6 @@ const AtomProtocolHandler = require('./atom-protocol-handler')
 const AutoUpdateManager = require('./auto-update-manager')
 const StorageFolder = require('../storage-folder')
 const Config = require('../config')
-const ConfigFile = require('../config-file')
 const FileRecoveryService = require('./file-recovery-service')
 const ipcHelpers = require('../ipc-helpers')
 const {BrowserWindow, Menu, app, dialog, ipcMain, shell, screen} = require('electron')
@@ -202,7 +201,6 @@ class AtomApplication extends EventEmitter {
 
   openWithOptions (options) {
     const {
-      projectSettings,
       initialPaths,
       pathsToOpen,
       executedFrom,

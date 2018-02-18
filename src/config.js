@@ -582,7 +582,9 @@ class Config {
   // Returns the value from Atom's default settings, the user's configuration
   // file in the type specified by the configuration schema.
   get (...args) {
-    let keyPath, options = {}, scope, value
+    let keyPath, scope, value
+    let options = {}
+
     if (args.length > 1) {
       if ((typeof args[0] === 'string') || (args[0] == null)) {
         [keyPath, options] = args;
@@ -592,7 +594,7 @@ class Config {
       [keyPath] = args
     }
 
-    const noSources = options.sources == null || (Array.isArray(options.sources) && options.sources.length == 0)
+    const noSources = !options.sources || (Array.isArray(options.sources) && options.sources.length == 0)
     if (this.hasCurrentProject && noSources) {
       const projectScope = Array.isArray(scope) ? scope.push(PROJECT) : [PROJECT]
       const projectOptions = Object.assign({sources: [PROJECT]}, options)
@@ -620,7 +622,7 @@ class Config {
   //  * `scopeDescriptor` The {ScopeDescriptor} with which the value is associated
   //  * `value` The value for the key-path
   getAll (keyPath, options = {}) {
-    let globalValue, result, scope
+    let result, scope
     if (options != null) { ({scope} = options) }
 
     const priorities = []
@@ -641,6 +643,7 @@ class Config {
         return result
       }
     }
+    return result
   }
 
   // Gets all values for a particular priority. IE: Project settings,

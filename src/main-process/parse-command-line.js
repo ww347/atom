@@ -6,7 +6,6 @@ const {app} = require('electron')
 const path = require('path')
 const fs = require('fs-plus')
 const CSON = require('season')
-const ConfigFile = require('../config-file.js')
 
 module.exports = function parseCommandLine (processArgs) {
   const options = yargs(processArgs).wrap(yargs.terminalWidth())
@@ -199,14 +198,14 @@ const readProjectSettingsSync = (filepath, executedFrom) => {
   }
   try {
     const readPath = path.isAbsolute(filepath) ? filepath : path.join(executedFrom, filepath)
-    return CSON.readFileSync(path.join(executedFrom, filepath))
+    return CSON.readFileSync(path.join(executedFrom, readPath))
   } catch (e) {
     throw new Error('Unable to read supplied config file.')
   }
 }
 
 const hasAtomProjectFormat = (atomProject) => {
-  const projectFileFormat = new RegExp('.*\.atom-project\.(json|cson)')
+  const projectFileFormat = /.*\.atomProject\.(json|cson)/
   return projectFileFormat.test(atomProject)
 }
 
